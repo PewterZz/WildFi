@@ -49,8 +49,7 @@ namespace SimpleFPS
 
 		public void PlayFireEffect()
 		{
-			// Player fire animation (hands) is not played when strafing because we lack a proper
-			// animation and we do not want to make the animation controller more complex
+
 			if (Mathf.Abs(GetAnimationMoveVelocity().x) > 0.2f)
 				return;
 
@@ -61,12 +60,11 @@ namespace SimpleFPS
 		{
 			name = $"{Object.InputAuthority} ({(HasInputAuthority ? "Input Authority" : (HasStateAuthority ? "State Authority" : "Proxy"))})";
 
-			// Enable first person visual for local player, third person visual for proxies.
 			SetFirstPersonVisuals(HasInputAuthority);
 
 			if (HasInputAuthority == false)
 			{
-				// Virtual cameras are enabled only for local player.
+
 				var virtualCameras = GetComponentsInChildren<CinemachineVirtualCamera>(true);
 				for (int i = 0; i < virtualCameras.Length; i++)
 				{
@@ -81,7 +79,6 @@ namespace SimpleFPS
 		{
 			if (_sceneObjects.Gameplay.State == EGameplayState.Finished)
 			{
-				// After gameplay is finished we still want the player to finish movement and not stuck in the air.
 				MovePlayer();
 				return;
 			}
@@ -91,32 +88,29 @@ namespace SimpleFPS
 
 			if (Health.IsAlive == false)
 			{
-				// We want dead body to finish movement - fall to ground etc.
 				MovePlayer();
 
-				// Disable physics casts and collisions with other players.
+
 				KCC.SetColliderLayer(LayerMask.NameToLayer("Ignore Raycast"));
 				KCC.SetCollisionLayerMask(LayerMask.GetMask("Default"));
 
 				HitboxRoot.HitboxRootActive = false;
-
-				// Force enable third person visual for local player.
 				SetFirstPersonVisuals(false);
 				return;
 			}
 
 			if (GetInput(out NetworkedInput input))
 			{
-				// Input is processed on InputAuthority and StateAuthority.
+	
 				ProcessInput(input);
 			}
 			else
 			{
-				// When no input is available, at least continue with movement (e.g. falling).
+
 				MovePlayer();
 			}
 
-			// Camera is set based on KCC look rotation.
+
 			Vector2 pitchRotation = KCC.GetLookRotation(true, false);
 			CameraHandle.localRotation = Quaternion.Euler(pitchRotation);
 		}
@@ -128,7 +122,6 @@ namespace SimpleFPS
 
 			var moveVelocity = GetAnimationMoveVelocity();
 
-			// Set animation parameters.
 			Animator.SetFloat("LocomotionTime", Time.time * 2f);
 			Animator.SetBool("IsAlive", Health.IsAlive);
 			Animator.SetBool("IsGrounded", KCC.IsGrounded);
@@ -140,7 +133,7 @@ namespace SimpleFPS
 
 			if (Health.IsAlive == false)
 			{
-				// Disable UpperBody (override) and Look (additive) layers. Death animation is full-body.
+
 
 				int upperBodyLayerIndex = Animator.GetLayerIndex("UpperBody");
 				Animator.SetLayerWeight(upperBodyLayerIndex, Mathf.Max(0f, Animator.GetLayerWeight(upperBodyLayerIndex) - Time.deltaTime));
@@ -165,18 +158,15 @@ namespace SimpleFPS
 			if (HasInputAuthority == false)
 				return;
 
-			// Camera is set based on interpolated KCC look rotation.
 			var pitchRotation = KCC.GetLookRotation(true, false);
 			CameraHandle.localRotation = Quaternion.Euler(pitchRotation);
 		}
 
 		private void ProcessInput(NetworkedInput input)
 		{
-			// Processing input - look rotation, jump, movement, weapon fire, weapon switching, weapon reloading, spray decal.
 
 			KCC.AddLookRotation(input.LookRotationDelta, -89f, 89f);
 
-			// It feels better when player falls quicker
 			KCC.SetGravity(KCC.RealVelocity.y >= 0f ? Vector3.down * UpGravity : Vector3.down * DownGravity);
 
 			var inputDirection = KCC.TransformRotation * new Vector3(input.MoveDirection.x, 0f, input.MoveDirection.y);
@@ -228,7 +218,6 @@ namespace SimpleFPS
 				}
 			}
 
-			// Store input buttons when the processing is done - next tick it is compared against current input buttons.
 			_previousButtons = input.Buttons;
 		}
 

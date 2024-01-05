@@ -28,9 +28,6 @@ namespace SimpleFPS
 		Finished = 2,
 	}
 
-	/// <summary>
-	/// Drives gameplay logic - state, timing, handles player connect/disconnect/spawn/despawn/death, calculates statistics.
-	/// </summary>
 	public class Gameplay : NetworkBehaviour
 	{
 		public GameUI GameUI;
@@ -162,7 +159,6 @@ namespace SimpleFPS
 			var spawnPoint = GetSpawnPoint();
 			var player = Runner.Spawn(PlayerPrefab, spawnPoint.position, spawnPoint.rotation, playerRef);
 
-			// Set player instance as PlayerObject so we can easily get it from other locations.
 			Runner.SetPlayerObject(playerRef, player.Object);
 
 			RecalculateStatisticPositions();
@@ -195,25 +191,21 @@ namespace SimpleFPS
 			if (Runner == null)
 				yield break;
 
-			// Despawn old player object if it exists.
 			var playerObject = Runner.GetPlayerObject(playerRef);
 			if (playerObject != null)
 			{
 				Runner.Despawn(playerObject);
 			}
 
-			// Don't spawn the player for disconnected clients.
 			if (PlayerData.TryGet(playerRef, out PlayerData playerData) == false || playerData.IsConnected == false)
 				yield break;
 
-			// Update player data.
 			playerData.IsAlive = true;
 			PlayerData.Set(playerRef, playerData);
 
 			var spawnPoint = GetSpawnPoint();
 			var player = Runner.Spawn(PlayerPrefab, spawnPoint.position, spawnPoint.rotation, playerRef);
 
-			// Set player instance as PlayerObject so we can easily get it from other locations.
 			Runner.SetPlayerObject(playerRef, player.Object);
 		}
 
@@ -221,7 +213,6 @@ namespace SimpleFPS
 		{
 			Transform spawnPoint = default;
 
-			// Iterate over all spawn points in the scene.
 			var spawnPoints = Runner.SimulationUnityScene.GetComponents<SpawnPoint>(false);
 			for (int i = 0, offset = Random.Range(0, spawnPoints.Length); i < spawnPoints.Length; i++)
 			{
@@ -231,10 +222,8 @@ namespace SimpleFPS
 					break;
 			}
 
-			// Add spawn point to list of recently used spawn points.
 			_recentSpawnPoints.Add(spawnPoint);
 
-			// Ignore only last 3 spawn points.
 			if (_recentSpawnPoints.Count > 3)
 			{
 				_recentSpawnPoints.RemoveAt(0);
@@ -245,13 +234,12 @@ namespace SimpleFPS
 
 		private void StartGameplay()
 		{
-			// Stop all respawn coroutines.
+
 			StopAllCoroutines();
 
 			State = EGameplayState.Running;
 			RemainingTime = TickTimer.CreateFromSeconds(Runner, GameDuration);
 
-			// Reset player data after skirmish and respawn players.
 			foreach (var playerPair in PlayerData)
 			{
 				var data = playerPair.Value;

@@ -15618,7 +15618,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameUI: {fileID: 2056786212}
   PlayerPrefab: {fileID: 7289181853176218816, guid: a502c99225289824794be16d79c92b55, type: 3}
-  GameDuration: 300
+  GameDuration: 30
   PlayerRespawnTime: 5
   DoubleDamageDuration: 30
   _PlayerData:

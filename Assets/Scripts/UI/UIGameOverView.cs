@@ -8,7 +8,6 @@ namespace SimpleFPS
 		public TextMeshProUGUI Winner;
 		public GameObject      VictoryGroup;
 		public GameObject      DefeatGroup;
-		public AudioSource     GameOverMusic;
 
 		private GameUI _gameUI;
 		private EGameplayState _lastState;
@@ -39,7 +38,6 @@ namespace SimpleFPS
 			if (_lastState == _gameUI.Gameplay.State)
 				return;
 
-			GameOverMusic.PlayDelayed(1f);
 
 			_lastState = _gameUI.Gameplay.State;
 
